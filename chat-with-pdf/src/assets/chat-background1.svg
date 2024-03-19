@@ -1,0 +1,31 @@
+<svg width="1662" height="1662" viewBox="0 0 1662 1662" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g opacity="0.16" filter="url(#filter0_f_13206_17324)">
+<mask id="mask0_13206_17324" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="363" y="363" width="936" height="936">
+<circle cx="830.986" cy="830.986" r="467.986" fill="#2388FF"/>
+</mask>
+<g mask="url(#mask0_13206_17324)">
+<circle cx="830.986" cy="830.986" r="467.986" fill="url(#paint0_radial_13206_17324)"/>
+<circle cx="405.726" cy="421.88" r="425.242" fill="#5344FE" fill-opacity="0.68"/>
+<g style="mix-blend-mode:overlay">
+<circle cx="1399.53" cy="830.985" r="307.886" fill="#2DECF9"/>
+</g>
+<g style="mix-blend-mode:overlay">
+<circle cx="489.757" cy="887.46" r="307.886" fill="#2DECF9"/>
+</g>
+<g style="mix-blend-mode:darken">
+<path d="M1256.83 1074.98C1171.98 1145.78 1062.77 1188.38 943.617 1188.38C673.431 1188.38 454.403 969.352 454.403 699.167C454.403 612.848 476.758 531.751 515.995 461.35C408.436 551.089 339.996 686.135 339.996 837.167C339.996 1107.35 559.025 1326.38 829.211 1326.38C1013.08 1326.38 1173.25 1224.95 1256.83 1074.98Z" fill="#AC0CB9" fill-opacity="0.7"/>
+</g>
+</g>
+</g>
+<defs>
+<filter id="filter0_f_13206_17324" x="0.681915" y="0.681915" width="1660.61" height="1660.61" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="181.159" result="effect1_foregroundBlur_13206_17324"/>
+</filter>
+<radialGradient id="paint0_radial_13206_17324" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(907.257 670.777) rotate(103.201) scale(534.942)">
+<stop stop-color="#9CFFEA"/>
+<stop offset="1" stop-color="#9CFFEA"/>
+</radialGradient>
+</defs>
+</svg>
