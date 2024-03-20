@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Form, Input } from "antd";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -23,12 +24,16 @@ const LoginForm = () => {
       setPassword("");
       setLoading(false);
       navigate("/dashboard");
+      toast.success("Login successful!");
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user_id", JSON.stringify(response.data.user_id));
       localStorage.setItem("username", response.data.username);
       
     } catch (error) {
       // Handle error
+      if(error.response && error.response.status === 401){
+        toast.error("Invalid email or password");
+      }
       console.error("Error logging in:", error);
       setLoading(false);
     }

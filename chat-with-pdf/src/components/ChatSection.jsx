@@ -2,18 +2,18 @@ import React from "react";
 import { useState, useRef } from "react";
 import { Modal } from "antd";
 import logo from "../assets/logo.svg";
-import { IoMdAddCircleOutline, IoMdDocument} from "react-icons/io";
+import { IoMdAddCircleOutline, IoMdDocument } from "react-icons/io";
 import { MdHistory } from "react-icons/md";
 import chatBackground from "../assets/chat-background1.svg";
 import UserChatBubble from "./UserChatBubble";
 import AiChatBubble from "./AiChatBubble";
 import axios from "axios";
 import { useBearStore } from "../store/store";
+import Search from "./Search";
+import IndividualChatHistory from "./IndividualChatHistory";
+import ChatInput from "./ChatInput";
 
 const ChatSection = () => {
-  const [textAreaHeight, setTextAreaHeight] = useState("9vh");
-  const [boxAreaHeight, setBoxAreaHeight] = useState("9.5vh");
-
   const documents = useBearStore((state) => state.documents);
   const setDocuments = useBearStore((state) => state.setDocuments);
 
@@ -24,6 +24,11 @@ const ChatSection = () => {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [fileError, setFileError] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [chatMessages, setChatMessages] = useState([]);
+  const handleSend = (message) => {
+    setChatMessages([...chatMessages, { text: message, type: "user" }]);
+    // ... (Potential logic to send the message to your backend API)
+  };
 
   const fileInputRef = useRef(null);
 
@@ -41,18 +46,6 @@ const ChatSection = () => {
 
     setFileError(null);
     setSelectedFile(file);
-  };
-
-  const textAreaRef = useRef(null);
-  const handleTextAreaChange = (event) => {
-    if (event.target.value === "") {
-      setTextAreaHeight("9vh");
-      setBoxAreaHeight("9.5vh");
-    } else {
-      const newHeight = Math.min(textAreaRef.current.scrollHeight, 6 * 16);
-      setTextAreaHeight(`${newHeight}px`);
-      setBoxAreaHeight(`${newHeight + 5}px`);
-    }
   };
 
   const handleOk = async () => {
@@ -79,6 +72,7 @@ const ChatSection = () => {
 
         console.log("File uploaded successfully:", response.data);
         setDocuments(response.data.documents);
+        setCurrentDocument(response.data.documents[response.data.documents.length - 1]);
       } catch (error) {
         console.error("Error uploading file:", error.response || error);
       } finally {
@@ -87,7 +81,20 @@ const ChatSection = () => {
         setOpen(false);
         setConfirmLoading(false);
       }
+    } else {
+      setFileError("Please select a file to upload");
+      setConfirmLoading(false);
     }
+  };
+
+  const currentDocument = useBearStore((state) => state.currentDocument);
+
+  const setCurrentDocument = useBearStore((state) => state.setCurrentDocument);
+
+  const handleDocumentClick = (document) => {
+    console.log("Clicked document:", document);
+    setCurrentDocument(document);
+    setOpenDocumentsModal(false);
   };
 
   return (
@@ -100,16 +107,16 @@ const ChatSection = () => {
           <img src={logo} alt="" className="h-8" />
         </div>
         <button
-          className="max-h-10 px-3 py-2 text-white hover:scale-105 flex items-center gap-2 rounded-2xl md:hidden"  style={{
+          className="max-h-10 px-3 py-2 text-white hover:scale-105 flex items-center gap-2 rounded-2xl md:hidden"
+          style={{
             background:
               "linear-gradient(180deg, #0fa958 0%, #0fa958 100%, #0fa958 100%)",
             boxShadow:
               "0px 2px 5px #0fa958, inset 0px -2px 0.3px #0fa958, inset 0px 2px 1px #0fa958",
-          }}// Only show on smaller screens
-          // ... your existing button styles
+          }}
           onClick={() => setOpenDocumentsModal(true)}
         >
-          <MdHistory size={20} /> 
+          <MdHistory size={20} />
           <p className="font-bold text-sm">History</p>
         </button>
         <button
@@ -135,42 +142,18 @@ const ChatSection = () => {
             </div>
           ) : (
             <>
-              <UserChatBubble />
-              <AiChatBubble />
-              <UserChatBubble />
-              <AiChatBubble />
-              <UserChatBubble />
-              <AiChatBubble />
-              <UserChatBubble />
-              <AiChatBubble />
+              {chatMessages.map((message, index) =>
+                message.type === "user" ? (
+                  <UserChatBubble key={index} text={message.text} />
+                ) : (
+                  <AiChatBubble key={index} text={message.text} />
+                )
+              )}
             </>
           )}
         </div>
       </div>
-      <div
-        className="absolute bottom-3 left-1/2 -translate-x-1/2 h-[6vh] md:h-[9vh] border-2 shadow-md w-[80vw] md:w-[60vw] rounded-xl flex z-20"
-        style={{ height: boxAreaHeight }}
-      >
-        <textarea
-          className="flex-1 resize-none p-4 rounded-l-xl focus:outline-none z-20"
-          style={{ height: textAreaHeight }}
-          ref={textAreaRef}
-          onChange={handleTextAreaChange}
-        />
-        <div className="flex items-center z-20">
-          <button
-            className="mx-4 px-3 py-2 text-white hover:scale-105 flex items-center gap-2 rounded-xl"
-            style={{
-              background:
-                "linear-gradient(180deg, #0fa958 0%, #0fa958 100%, #0fa958 100%)",
-              boxShadow:
-                "0px 2px 5px #0fa958, inset 0px -2px 0.3px #0fa958, inset 0px 2px 1px #0fa958",
-            }}
-          >
-            <p className="text-sm font-bold">Send</p>
-          </button>
-        </div>
-      </div>
+      <ChatInput onMessageSubmit={handleSend} />
       <div className="absolute -bottom-44 md:left-[70%] md:-translate-x-1/2 right-0 w-full">
         <img className="h-[100vh] object-cover" src={chatBackground} alt="" />
       </div>
@@ -223,17 +206,14 @@ const ChatSection = () => {
         onCancel={() => setOpenDocumentsModal(false)}
         onOk={() => setOpenDocumentsModal(false)} // Close on click
       >
+        <Search />
         <ul>
-          {documents.map((doc) => (
-            <li
-              key={doc.id} // Assuming you have an 'id' property
-              className={`cursor-pointer hover:bg-gray-100 ${
-                selectedDocument === doc.id ? "bg-gray-200" : ""
-              }`} // Apply highlight style
-              onClick={() => setSelectedDocument(doc.id)}
-            >
-              {doc.name}
-            </li>
+          {documents.map((document) => (
+            <IndividualChatHistory
+              key={document.id}
+              document={document}
+              onClick={() => handleDocumentClick(document)}
+            />
           ))}
         </ul>
       </Modal>

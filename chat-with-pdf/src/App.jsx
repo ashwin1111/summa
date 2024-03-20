@@ -8,7 +8,8 @@ import pdfIcon from "./assets/pdf-icon.svg";
 import Home from "./Home";
 import Dashboard from "./Dashboard";
 import { RequireToken } from "./Auth";
-import { ConfigProvider } from "antd";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const [count, setCount] = useState(0);
@@ -34,6 +35,7 @@ function App() {
             }
           />
         </Routes>
+        <ToastContainer position="top-center" theme="light" />
       </div>
   );
 }

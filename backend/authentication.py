@@ -7,6 +7,7 @@ from models import User
 from hashing import verify_password
 from sqlalchemy.orm import Session
 from database_operations import get_user
+from loguru import logger
 
 SECRET_KEY = "divyansh"
 ALGORITHM = "HS256"
@@ -14,7 +15,8 @@ ALGORITHM = "HS256"
 def authenticate_user(email: str, password: str):
     db = SessionLocal()
     user = db.query(User).filter(User.email == email).first()
-    print(user)
+    logger.info(f"User: {user}")
+    logger.info(f"email: {email}")
     if user is None:
         raise ValueError("The email does not exist")
     if not verify_password(password, user.password):

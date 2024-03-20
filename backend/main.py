@@ -17,6 +17,10 @@ from fastapi.encoders import jsonable_encoder
 
 from fastapi.middleware.cors import CORSMiddleware
 from uuid import uuid4
+from sqlalchemy import and_
+import asyncio
+from loguru import logger
+
 
 origins = [
     "http://localhost:5173",
@@ -36,6 +40,11 @@ MB = 1024 * KB
 
 @app.post("/register")
 async def create_user(user: UserCreate):
+    db = SessionLocal()
+    user_check = db.query(User).filter(User.email == user.email).first()
+    if user_check is not None:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
     create_user_in_database(user.email, user.username, user.password)
     return {"message": "User created successfully"}
 
@@ -77,15 +86,37 @@ async def upload_file(user_id: str, file: UploadFile = File(...)):
         raise HTTPException(
             status_code=400, detail="Only PDF files are allowed"
         )
-    object_url = await s3_upload(contents=contents, key=f'{uuid4()}.pdf')
-    create_document_in_database(file.filename, object_url, int(user_id))
-    db = SessionLocal()
-    documents = db.query(Document).filter(Document.user_id == user_id).all()
-    return {"documents": documents}
+        
+    try:
+        task = asyncio.create_task(s3_upload(contents=contents, key=f'{uuid4()}.pdf'))
+        object_url = await asyncio.wait_for(task, timeout=90.0)  # 90 seconds (1.5 minutes) timeout 
+        # object_url = await s3_upload(contents=contents, key=f'{uuid4()}.pdf')
+        create_document_in_database(file.filename, object_url, int(user_id))
+        db = SessionLocal()
+        documents = db.query(Document).filter(Document.user_id == user_id).all()
+        return {"documents": documents}
+
+    except asyncio.TimeoutError:
+        raise HTTPException(
+            status_code=504,  # Use Gateway Timeout status code 
+            detail="File upload to AWS timed out. Please try again later."
+        )
+    except Exception as e:  # Catch other potential S3 errors
+        logger.error(f"Error uploading to S3: {e}")
+        raise HTTPException(
+            status_code=500,  # Internal Server Error
+            detail="An error occurred during upload. Please try again later." 
+        )
 
 @app.get("/documents/{user_id}")
-async def get_documents(user_id: int):
+async def get_documents(user_id: int, search_term: str = None):  # Add 'search_term' parameter
     db = SessionLocal()
-    documents = db.query(Document).filter(Document.user_id == user_id).all()
+
+    filters = [Document.user_id == user_id]  # Add filtering conditions to a list
+
+    if search_term:
+        filters.append(Document.name.ilike(f"%{search_term}%"))  # Add search term filter
+
+    documents = db.query(Document).filter(and_(*filters)).all()  # Apply all filters
     return {"documents": documents}
 
