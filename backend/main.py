@@ -79,7 +79,9 @@ async def upload_file(user_id: str, file: UploadFile = File(...)):
         )
     object_url = await s3_upload(contents=contents, key=f'{uuid4()}.pdf')
     create_document_in_database(file.filename, object_url, int(user_id))
-    return {"link": object_url}
+    db = SessionLocal()
+    documents = db.query(Document).filter(Document.user_id == user_id).all()
+    return {"documents": documents}
 
 @app.get("/documents/{user_id}")
 async def get_documents(user_id: int):
