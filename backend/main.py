@@ -1,5 +1,5 @@
 from database import SessionLocal
-from models import User, Document, UserCreate, UserLogin
+from models import User, Document, UserCreate, UserLogin, RESPONSE
 from fastapi import FastAPI, HTTPException, Response, File, UploadFile, status
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
@@ -20,20 +20,23 @@ from uuid import uuid4
 from sqlalchemy import and_
 import asyncio
 from loguru import logger
+from llm import LLM
+
+import uvicorn
 
 
-origins = [
-    "http://localhost:5173",
-]
+# origins = [
+#     "http://localhost:5173",
+# ]
 
 app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"], 
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=origins,
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"], 
+# )
 
 KB = 1024
 MB = 1024 * KB
@@ -120,3 +123,14 @@ async def get_documents(user_id: int, search_term: str = None):  # Add 'search_t
     documents = db.query(Document).filter(and_(*filters)).all()  # Apply all filters
     return {"documents": documents}
 
+@app.post('/response')
+async def resp(response:RESPONSE):
+    llm = LLM(logger)
+
+    resp = llm.generate_response(response.document, response.prompt)
+    
+    return resp
+
+if __name__ == "_main_":
+    # import uvicorn
+    uvicorn.run(app, host="localhost", port=8089)

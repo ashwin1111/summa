@@ -32,3 +32,10 @@ class UserLogin(BaseModel):
     
     class Config:
         orm_mode = True
+        
+        
+class RESPONSE(BaseModel):
+    document: str
+    prompt: str
+    class Config:
+        orm_mode = True

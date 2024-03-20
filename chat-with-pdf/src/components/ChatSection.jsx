@@ -12,6 +12,7 @@ import { useBearStore } from "../store/store";
 import Search from "./Search";
 import IndividualChatHistory from "./IndividualChatHistory";
 import ChatInput from "./ChatInput";
+import pdfToText from 'react-pdftotext';
 
 const ChatSection = () => {
   const documents = useBearStore((state) => state.documents);
@@ -19,7 +20,7 @@ const ChatSection = () => {
 
   const [openDocumentsModal, setOpenDocumentsModal] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState(null);
-
+  const [text, setText] = useState(null);
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [fileError, setFileError] = useState(null);
@@ -38,6 +39,12 @@ const ChatSection = () => {
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
+
+    pdfToText(file)
+    .then(text => setText(text))
+    .catch(error => console.error("Failed to extract text from pdf"));
+
+    console.log("Selected text:", text);
 
     if (file.type !== "application/pdf") {
       setFileError("Please select a PDF file only.");
