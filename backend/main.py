@@ -133,4 +133,4 @@ async def resp(response:RESPONSE):
 
 if __name__ == "_main_":
     # import uvicorn
-    uvicorn.run(app, host="localhost", port=8089)
+    uvicorn.run(app, host="0.0.0.0", port=8089)
