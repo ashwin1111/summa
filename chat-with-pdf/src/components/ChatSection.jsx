@@ -21,7 +21,7 @@ const ChatSection = () => {
     }
   };
   return (
-    <div className="chat-section min-h-[95vh] border-2 max-h-[95vh] min-w-[78vw] max-w-[78vw] bg-white shadow-sm rounded-3xl overflow-hidden relative flex flex-col items-center">
+    <div className="chat-section min-h-[95vh] border-2 max-h-[95vh] min-w-[80vw] max-w-[80vw] bg-white shadow-sm rounded-3xl overflow-hidden relative flex flex-col items-center">
       <div
         className="py-4 px-8 flex justify-between items-center min-w-full z-20"
         style={{ boxShadow: "0 2px 12px -6px gray" }}
@@ -30,7 +30,7 @@ const ChatSection = () => {
           <img src={logo} alt=""className="h-8" />
         </div>
         <button
-          className="max-h-20 p-3 text-white hover:scale-105 flex items-center gap-2 rounded-2xl"
+          className="max-h-10 px-3 py-2 text-white hover:scale-105 flex items-center gap-2 rounded-2xl"
           style={{
             background:
               "linear-gradient(180deg, #0fa958 0%, #0fa958 100%, #0fa958 100%)",
@@ -72,7 +72,7 @@ const ChatSection = () => {
                 "0px 2px 5px #0fa958, inset 0px -2px 0.3px #0fa958, inset 0px 2px 1px #0fa958",
             }}
           >
-            <p>Send</p>
+            <p className="text-sm font-bold">Send</p>
           </button>
         </div>
       </div>

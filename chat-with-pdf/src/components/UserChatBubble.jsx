@@ -9,7 +9,7 @@ const UserChatBubble = () => {
         </div>
         <div className='flex flex-col'>
             <div className='font-bold'>Username</div>
-            <p className='mt-1 text-sm'> Lorem inpsumaskjdhfkjasdhfkjah asdj fhasjd f asdfjhlaskdh fs ad fas df as  hasdh fkasjdhfska dfasld fsal df Lorem inpsumaskjdhfkjasdhfkjah asdj fhasjd f asdfjhlaskdh fs ad fas df as  hasdh fkasjdhfska dfasld fsal dfLorem inpsumaskjdhfkjasdhfkjah asdj fhasjd f asdfjhlaskdh fs ad fas df as  hasdh fkasjdhfska dfasld fsal dfLorem inpsumaskjdhfkjasdhfkjah asdj fhasjd f asdfjhlaskdh fs ad fas df as  hasdh fkasjdhfska dfasld fsal df</p>
+            <p className='mt-1 text-[0.85rem]'> Lorem inpsumaskjdhfkjasdhfkjah asdj fhasjd f asdfjhlaskdh fs ad fas df as  hasdh fkasjdhfska dfasld fsal df Lorem inpsumaskjdhfkjasdhfkjah asdj fhasjd f asdfjhlaskdh fs ad fas df as  hasdh fkasjdhfska dfasld fsal dfLorem inpsumaskjdhfkjasdhfkjah asdj fhasjd f asdfjhlaskdh fs ad fas df as  hasdh fkasjdhfska dfasld fsal dfLorem inpsumaskjdhfkjasdhfkjah asdj fhasjd f asdfjhlaskdh fs ad fas df as  hasdh fkasjdhfska dfasld fsal df</p>
         </div>
       
     </div>
