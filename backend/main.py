@@ -154,7 +154,7 @@ async def resp(user_id:int ,document_id:int, response:RESPONSE, current_user: Us
             user_id=int(user_id),
             document_id=int(document_id),
             prompt=response.prompt,
-            response=resp
+            response=resp.response
         )
         db.add(new_request)
         db.commit()
