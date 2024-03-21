@@ -25,18 +25,18 @@ from llm import LLM
 import uvicorn
 
 
-# origins = [
-#     "http://localhost:5173",
-# ]
+origins = [
+    "http://localhost:5173",
+]
 
 app = FastAPI()
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=origins,
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"], 
-# )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"], 
+)
 
 KB = 1024
 MB = 1024 * KB
