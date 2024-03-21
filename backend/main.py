@@ -149,12 +149,12 @@ async def resp(user_id:int ,document_id:int, response:RESPONSE, current_user: Us
         llm = LLM(logger)
 
         resp = llm.generate_response(response.document, response.prompt)
-
+        print(resp.text)
         db = SessionLocal()
         new_request = Request(
             user_id=int(user_id),
             document_id=int(document_id),
-            prompt=response.prompt["text"],
+            prompt=response.prompt,
             response=resp
         )
         db.add(new_request)
