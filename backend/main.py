@@ -146,8 +146,6 @@ async def get_documents(user_id: int, search_term: str = None, current_user: Use
 @app.post('/response/{user_id}/{document_id}')
 async def resp(user_id:int ,document_id:int, response:RESPONSE, current_user: User = Depends(get_current_user_token)):
     try:
-        user_id = 123  # Replace 123 with the actual value of user_id
-
         llm = LLM(logger)
 
         resp = llm.generate_response(response.document, response.prompt)
@@ -157,7 +155,7 @@ async def resp(user_id:int ,document_id:int, response:RESPONSE, current_user: Us
             user_id=int(user_id),
             document_id=int(document_id),
             prompt=response.prompt["text"],
-            response=resp["text"]
+            response=resp
         )
         db.add(new_request)
         db.commit()
