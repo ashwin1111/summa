@@ -8,7 +8,7 @@
 ### Youtube Video Link : https://www.youtube.com/watch?v=yazVbILsFco&ab_channel=DivyanshSharma
 
 ### Tagline
-Intelligent document exploration and conversation powered by AI for as an assignment for internship of ***ai planet***
+Intelligent document exploration and conversation powered by AI as an assignment for internship at ***ai planet***
 
 ## Overview 
 
