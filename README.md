@@ -4,6 +4,9 @@
 ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 ![LlamaIndex]( https://img.shields.io/badge/LlamaIndex-8A2BE2)
 
+
+### Youtube Video Link : https://www.youtube.com/watch?v=yazVbILsFco&ab_channel=DivyanshSharma
+
 ### Tagline
 Intelligent document exploration and conversation powered by AI for as an assignment for internship of ***ai planet***
 
@@ -20,6 +23,8 @@ Key Features
 2. **Document History**: Easily view and manage a history of past document interactions.
 
 3. **Document Deletion**: Maintain control over your data by deleting documents when needed.
+
+4. **Responsive UI**: The user experience is seamless across all devices
 
 4. **Intuitive Document Selection**: Conveniently choose the PDF you want to converse with.
 
