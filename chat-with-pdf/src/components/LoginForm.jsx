@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Form, Input } from "antd";
+import { Form, Input, Button } from "antd";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -13,29 +13,41 @@ const LoginForm = () => {
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      const response = await axios.post(import.meta.env.VITE_BACKEND_URL + '/login', {
-        email: email,
-        password: password,
-      });
+      const response = await axios.post(
+        import.meta.env.VITE_BACKEND_URL + "/login",
+        {
+          email: email,
+          password: password,
+        }
+      );
 
-      console.log("Login successful:", response.data);
 
       setEmail("");
       setPassword("");
       setLoading(false);
       navigate("/dashboard");
       toast.success("Login successful!");
-      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("token", response.data.access_token);
       localStorage.setItem("user_id", JSON.stringify(response.data.user_id));
       localStorage.setItem("username", response.data.username);
-      
     } catch (error) {
       // Handle error
-      if(error.response && error.response.status === 401){
-        toast.error("Invalid email or password");
+      if (error.response) {
+        const statusCode = error.response.status;
+        const errorMessage = error.response.data.message || "Login failed";
+        switch (statusCode) {
+          case 401:
+            toast.error("Invalid email or password");
+            break;
+          default:
+            toast.error(errorMessage);
+        }
+      } else {
+        toast.error(
+          "Network error. Please check your connection and try again."
+        );
       }
       console.error("Error logging in:", error);
-      setLoading(false);
     }
   };
 
@@ -88,12 +100,20 @@ const LoginForm = () => {
           span: 16,
         }}
       >
-        <button
+        {/* <button
           className=" mt-3 py-2 px-4 bg-[#141736] rounded-md text-white"
           onClick={handleSubmit}
         >
           <p>Submit</p>
-        </button>
+        </button> */}
+        <Button
+          loading={loading}
+          className=" mt-3 px-4 bg-[#141736] rounded-md text-white hover:border-2 hover:border-black"
+          onClick={handleSubmit}
+          style={{ height: "2.5rem", fontSize: "1.1rem" }}
+        >
+          Submit
+        </Button>
       </Form.Item>
     </Form>
   );

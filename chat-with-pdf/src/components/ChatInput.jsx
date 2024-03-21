@@ -1,11 +1,15 @@
 import React from "react";
 import { useState } from "react";
 import { useRef } from "react";
+import { Button } from "antd";
+import { useBearStore } from "../store/store";
 
-const ChatInput = ({ onMessageSubmit }) => {
+const ChatInput = ({ onMessageSubmit, isLoading }) => {
   const [textAreaHeight, setTextAreaHeight] = useState("9vh");
   const [boxAreaHeight, setBoxAreaHeight] = useState("9.5vh");
   const [userInput, setUserInput] = useState("");
+  const chatLoading = useBearStore((state) => state.chatLoading);
+  const setChatLoading = useBearStore((state) => state.setChatLoading);
 
   const textAreaRef = useRef(null);
   const handleTextAreaChange = (event) => {
@@ -21,8 +25,9 @@ const ChatInput = ({ onMessageSubmit }) => {
   };
 
   const handleKeyPress = (event) => {
-    if (event.key === "Enter") {
+    if (event.key === "Enter" && !isLoading) {
       onMessageSubmit(userInput); // Trigger submission
+      setChatLoading(true); 
       setUserInput(""); // Clear input field
     }
   };
@@ -41,7 +46,8 @@ const ChatInput = ({ onMessageSubmit }) => {
         onKeyPress={handleKeyPress}
       />
       <div className="flex items-center z-20">
-        <button
+        <Button
+          loading={isLoading}
           className="mx-4 px-3 py-2 text-white hover:scale-105 flex items-center gap-2 rounded-xl"
           style={{
             background:
@@ -51,7 +57,7 @@ const ChatInput = ({ onMessageSubmit }) => {
           }}
         >
           <p className="text-sm font-bold">Send</p>
-        </button>
+        </Button>
       </div>
     </div>
   );

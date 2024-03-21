@@ -22,7 +22,30 @@ const useBearStore = create((set) => ({
         set({
             loadingGlobal: loading
         })
-    }
+    },
+
+    chatLoading: false,
+    setChatLoading: (loading) => {
+        set({
+            chatLoading: loading
+        })
+    },
+
+    chatMessages: [],
+    setChatMessages: (newMessages) => {
+        console.log("Updating chat messages:", newMessages);
+        set(() => ({    
+            chatMessages: newMessages
+        }))
+    },
+
+    chatNewMessage: [],
+    setChatNewMessage: (newMessage) => {
+        console.log("Updating chat new message:", newMessage);
+        set(() => ({    
+            chatNewMessage: newMessage
+        }))
+    },
 }))
 
 export {

@@ -22,8 +22,8 @@ const RegisterForm = () => {
         username,
       });
       
-      console.log("Login successful:", response.data);
       toast.success("Registration successful!");
+      toast.info("Please login to continue.");
       setEmail("");
       setPassword("");
       setUsername("");

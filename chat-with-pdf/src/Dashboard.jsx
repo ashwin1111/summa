@@ -27,11 +27,14 @@ const Dashboard = () => {
     setLoadingGlobal(true);
     const userId = localStorage.getItem("user_id"); // replace this with actual user id
     axios
-      .get(import.meta.env.VITE_BACKEND_URL + `/documents/${userId}`)
+      .get(import.meta.env.VITE_BACKEND_URL + `/documents/${userId}`,{
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
       .then((response) => {
         setDocuments(response.data.documents);
         setCurrentDocument(response.data.documents[0]);
-        console.log(response.data.documents);
         setLoadingGlobal(false);
       })
       .catch((error) => {

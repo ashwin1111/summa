@@ -33,14 +33,7 @@ const Home = () => {
       setConfirmLoading(false);
     }, 2000);
   };
-  const handleCancel = () => {
-    console.log("Clicked cancel button");
-    setOpen(false);
-  };
-
-  const handleLogin = async () => {
-    console.log(email, password);
-  };
+  
   return (
     <div
       className="h-[100vh] w-[100vw] max-h-[100vh] max-w-[100vw] overflow-hidden flex flex-col justify-center items-center"

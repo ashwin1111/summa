@@ -5,8 +5,8 @@ import { useBearStore } from '../store/store'
 const ChatHistory = ({documents}) => {
 
   const currentDocument = useBearStore((state) => state.currentDocument);
-
   const setCurrentDocument = useBearStore((state) => state.setCurrentDocument);
+
   console.log("Current document:", currentDocument);
   const handleDocumentClick = (document) => {
     console.log("Clicked document:", document)

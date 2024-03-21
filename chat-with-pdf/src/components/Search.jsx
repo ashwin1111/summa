@@ -15,7 +15,11 @@ const Search = () => {
   const fetchDocumentsBySearch = async (searchTerm) => {
     try {
       const user_id = localStorage.getItem("user_id");
-      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/documents/${user_id}?search_term=${searchTerm}`);
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/documents/${user_id}?search_term=${searchTerm}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
       setDocuments(response.data.documents); 
     } catch (error) {
       console.error("Error searching documents:", error);

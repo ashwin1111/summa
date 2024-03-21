@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState, useRef } from "react";
-import { Modal } from "antd";
+import { Modal, Button, Spin, Flex } from "antd";
 import logo from "../assets/logo.svg";
 import { IoMdAddCircleOutline, IoMdDocument } from "react-icons/io";
 import { MdHistory } from "react-icons/md";
@@ -12,12 +12,13 @@ import { useBearStore } from "../store/store";
 import Search from "./Search";
 import IndividualChatHistory from "./IndividualChatHistory";
 import ChatInput from "./ChatInput";
-import pdfToText from 'react-pdftotext';
+import { v4 as uuidv4 } from "uuid";
+import { toast } from "react-toastify";
 
 const ChatSection = () => {
   const documents = useBearStore((state) => state.documents);
   const setDocuments = useBearStore((state) => state.setDocuments);
-
+  const chatContainerRef = useRef(null);
   const [openDocumentsModal, setOpenDocumentsModal] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [text, setText] = useState(null);
@@ -25,11 +26,98 @@ const ChatSection = () => {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [fileError, setFileError] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [chatMessages, setChatMessages] = useState([]);
-  const handleSend = (message) => {
-    setChatMessages([...chatMessages, { text: message, type: "user" }]);
-    // ... (Potential logic to send the message to your backend API)
+  // const [chatMessages, setChatMessages] = useState([]);
+  const chatMessages = useBearStore((state) => state.chatMessages);
+  const setChatMessages = useBearStore((state) => state.setChatMessages);
+  const chatNewMessage = useBearStore((state) => state.chatNewMessage);
+  const setChatNewMessage = useBearStore((state) => state.setChatNewMessage);
+  const [chatLocal, setChatLocal] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const currentDocument = useBearStore((state) => state.currentDocument);
+  const chatLoading = useBearStore((state) => state.chatLoading);
+  const setChatLoading = useBearStore((state) => state.setChatLoading);
+  const setCurrentDocument = useBearStore((state) => state.setCurrentDocument);
+  const handleSend = async (message) => {
+    // setChatMessages([...chatMessages, { text: message, type: "user" }]);
+    //  setChatMessages([...chatMessages, { text: message, type: "user" }]);
+
+    setChatLocal({
+      created_at: new Date().toISOString(),
+      document_id: currentDocument.id,
+      id: uuidv4(),
+      prompt: message,
+      response: "",
+    });
+
+    event.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const user_id = localStorage.getItem("user_id");
+      const API_URL = `${
+        import.meta.env.VITE_BACKEND_URL
+      }/response/${user_id}/${currentDocument.id}`;
+      const response = await axios.post(
+        API_URL,
+        {
+          document: currentDocument.link,
+          prompt: message,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      setChatLocal({
+        created_at: new Date().toISOString(),
+        document_id: currentDocument.id,
+        id: Math.random(),
+        prompt: message,
+        response: response.data.response,
+      });
+      toast.info("Scroll to bottom to see the response.");
+      setChatLoading(false);
+    } catch (error) {
+      console.error("Error sending message:", error);
+    } finally {
+      // setUserInput("");
+      setIsLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchInitialMessages();
+  }, [chatLocal]);
+
+  const fetchInitialMessages = async () => {
+    try {
+      const user_id = localStorage.getItem("user_id");
+      const API_URL = `${
+        import.meta.env.VITE_BACKEND_URL
+      }/requests/${user_id}/${currentDocument.id}`;
+      const response = await axios.get(API_URL, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      setChatMessages(response.data);
+    } catch (error) {
+      console.error("Error fetching initial messages:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchInitialMessages();
+  }, [currentDocument]);
+
+  useEffect(() => {
+    // Scroll to the bottom of the chat container when chatMessages change
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [chatMessages]);
 
   const fileInputRef = useRef(null);
 
@@ -40,11 +128,6 @@ const ChatSection = () => {
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
 
-    pdfToText(file)
-    .then(text => setText(text))
-    .catch(error => console.error("Failed to extract text from pdf"));
-
-    console.log("Selected text:", text);
 
     if (file.type !== "application/pdf") {
       setFileError("Please select a PDF file only.");
@@ -73,13 +156,15 @@ const ChatSection = () => {
           {
             headers: {
               "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           }
         );
 
-        console.log("File uploaded successfully:", response.data);
         setDocuments(response.data.documents);
-        setCurrentDocument(response.data.documents[response.data.documents.length - 1]);
+        setCurrentDocument(
+          response.data.documents[response.data.documents.length - 1]
+        );
       } catch (error) {
         console.error("Error uploading file:", error.response || error);
       } finally {
@@ -93,10 +178,6 @@ const ChatSection = () => {
       setConfirmLoading(false);
     }
   };
-
-  const currentDocument = useBearStore((state) => state.currentDocument);
-
-  const setCurrentDocument = useBearStore((state) => state.setCurrentDocument);
 
   const handleDocumentClick = (document) => {
     console.log("Clicked document:", document);
@@ -126,41 +207,72 @@ const ChatSection = () => {
           <MdHistory size={20} />
           <p className="font-bold text-sm">History</p>
         </button>
-        <button
-          className="max-h-10 px-3 py-2 text-white hover:scale-105 flex items-center gap-2 rounded-2xl"
+        {documents.length > 10 && (
+          <div>
+            <p className="hidden md:block text-[red]">
+              {" "}
+              More than 10 documents added remove docs to add
+            </p>
+          </div>
+        )}
+        <Button
+          className="max-h-10 px-3 py-2 text-white hover:scale-105 flex items-center gap-2 rounded-lg"
+          {...(documents.length > 10 && { disabled: true })}
           style={{
             background:
               "linear-gradient(180deg, #0fa958 0%, #0fa958 100%, #0fa958 100%)",
             boxShadow:
               "0px 2px 5px #0fa958, inset 0px -2px 0.3px #0fa958, inset 0px 2px 1px #0fa958",
+            fontSize: "1rem",
+            padding: "1rem 1rem",
           }}
           onClick={() => setOpen(true)}
         >
           <IoMdAddCircleOutline size={20} />
-          <p className="font-bold text-sm">Upload Pdf</p>
-        </button>
+          <p className="font-bold text-md">Upload Pdf</p>
+        </Button>
       </div>
-      <div className="w-[98%] h-[70vh] flex flex-col items-center overflow-x-hidden overflow-y-scroll z-20">
-        <div className="max-w-[80vw] md:max-w-[60vw] ">
-          {documents.length === 0 ? (
-            <div className="text-center mt-10">
-              <p className="text-xl font-bold">No Documents Found</p>
-              <p className="text-sm">Upload a pdf to start a conversation</p>
-            </div>
+      {documents.length > 10 && (
+        <div className="block mt-3 md:hidden">
+          <p className="text-[red]">
+            {" "}
+            More than 10 documents added remove docs to add
+          </p>
+        </div>
+      )}
+      <div className="text-left mt-10 w-[98%] flex flex-col justify-center items-center">
+        <div className="md:min-w-[60vw] md:max-w-[60vw] min-w-[60vw] max-w-[60vw]">
+          <p className="text-xl font-bold">{currentDocument?.name}</p>
+          <p className="text-sm">Start asking questions on this pdf</p>
+        </div>
+      </div>
+      <div className="w-[98%] h-[60vh] flex flex-col items-center overflow-x-hidden overflow-y-scroll z-20">
+        <div className="max-w-[80vw] md:max-w-[60vw] min-w-[80vw] md:min-w-[60vw]">
+          {chatMessages?.map((message, index) => (
+            <React.Fragment key={index}>
+              <UserChatBubble key={uuidv4()} text={message.prompt} />
+              <AiChatBubble key={uuidv4()} text={message.response} />
+            </React.Fragment>
+          ))}
+          {chatLocal?.length > 0 &&
+            chatLocal?.map((message, index) => (
+              <React.Fragment key={index}>
+                <UserChatBubble key={uuidv4()} text={message.prompt} />
+                <AiChatBubble key={uuidv4()} text={message.response} />
+              </React.Fragment>
+            ))}
+
+          {chatLoading ? (
+            <Flex align="center" gap="middle">
+              <Spin tip="Loading..." size="large" />
+              <div>Loading...</div>
+            </Flex>
           ) : (
-            <>
-              {chatMessages.map((message, index) =>
-                message.type === "user" ? (
-                  <UserChatBubble key={index} text={message.text} />
-                ) : (
-                  <AiChatBubble key={index} text={message.text} />
-                )
-              )}
-            </>
+            <></>
           )}
         </div>
       </div>
-      <ChatInput onMessageSubmit={handleSend} />
+      <ChatInput onMessageSubmit={handleSend} isLoading={isLoading} />
       <div className="absolute -bottom-44 md:left-[70%] md:-translate-x-1/2 right-0 w-full">
         <img className="h-[100vh] object-cover" src={chatBackground} alt="" />
       </div>
