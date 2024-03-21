@@ -1,5 +1,5 @@
 from database import SessionLocal
-from models import User, Document, UserCreate, UserLogin, RESPONSE
+from models import User, Document, UserCreate, UserLogin, RESPONSE, Request
 from fastapi import FastAPI, HTTPException, Response, File, UploadFile, status
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from fastapi import Depends
 from hashing import hash_password, verify_password
 from database_operations import create_document_in_database, create_user_in_database, get_user
-from authentication import authenticate_user, create_access_token, get_current_user
+from authentication import authenticate_user, create_access_token, get_current_user_token
 from aws import s3_upload
 
 from fastapi.exceptions import RequestValidationError
@@ -23,6 +23,7 @@ from loguru import logger
 from llm import LLM
 
 import uvicorn
+from jwt.exceptions import ExpiredSignatureError
 
 
 origins = [
@@ -71,7 +72,7 @@ async def validation_exception_handler(request, exc):
 )
 
 @app.post('/upload')
-async def upload_file(user_id: str, file: UploadFile = File(...)):
+async def upload_file(user_id: str, file: UploadFile = File(...) , current_user: User = Depends(get_current_user_token)):
     if not file:
         raise HTTPException(
             status_code=400, detail="No file uploaded"
@@ -98,6 +99,12 @@ async def upload_file(user_id: str, file: UploadFile = File(...)):
         db = SessionLocal()
         documents = db.query(Document).filter(Document.user_id == user_id).all()
         return {"documents": documents}
+    
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=401, 
+            detail="Expired token. Please log in again to get a new token."
+        )
 
     except asyncio.TimeoutError:
         raise HTTPException(
@@ -112,25 +119,81 @@ async def upload_file(user_id: str, file: UploadFile = File(...)):
         )
 
 @app.get("/documents/{user_id}")
-async def get_documents(user_id: int, search_term: str = None):  # Add 'search_term' parameter
-    db = SessionLocal()
-
-    filters = [Document.user_id == user_id]  # Add filtering conditions to a list
-
-    if search_term:
-        filters.append(Document.name.ilike(f"%{search_term}%"))  # Add search term filter
-
-    documents = db.query(Document).filter(and_(*filters)).all()  # Apply all filters
-    return {"documents": documents}
-
-@app.post('/response')
-async def resp(response:RESPONSE):
-    llm = LLM(logger)
-
-    resp = llm.generate_response(response.document, response.prompt)
+async def get_documents(user_id: int, search_term: str = None, current_user: User = Depends(get_current_user_token)):  # Add 'search_term' parameter
     
-    return resp
+    try:
+        db = SessionLocal()
 
+        filters = [Document.user_id == user_id]  # Add filtering conditions to a list
+
+        if search_term:
+            filters.append(Document.name.ilike(f"%{search_term}%"))  # Add search term filter
+
+        documents = db.query(Document).filter(and_(*filters)).all()  # Apply all filters
+        return {"documents": documents}
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=401, 
+            detail="Expired token. Please log in again to get a new token."
+        )
+    except Exception as e:
+        logger.error(f"Error retrieving documents: {e}")
+        raise HTTPException(
+            status_code=500,  
+            detail="An error occurred while retrieving documents. Please try again later." 
+        )
+
+@app.post('/response/{user_id}/{document_id}')
+async def resp(user_id:int ,document_id:int, response:RESPONSE, current_user: User = Depends(get_current_user_token)):
+    try:
+        user_id = 123  # Replace 123 with the actual value of user_id
+
+        llm = LLM(logger)
+
+        resp = llm.generate_response(response.document, response.prompt)
+
+        db = SessionLocal()
+        new_request = Request(
+            user_id=int(user_id),
+            document_id=int(document_id),
+            prompt=response.prompt["text"],
+            response=resp["text"]
+        )
+        db.add(new_request)
+        db.commit()
+
+        return resp
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=401, 
+            detail="Expired token. Please log in again to get a new token."
+        )
+    except Exception as e:
+        logger.error(f"Error generating response: {e}")
+        raise HTTPException(
+            status_code=500,  
+            detail="An error occurred while generating response. Please try again later." 
+        )
+
+@app.get('/requests/{user_id}/{document_id}')
+async def get_requests(user_id: int, document_id: int, current_user: User = Depends(get_current_user_token)):
+    try:
+        # Assuming you have access to the database and Request model
+        db = SessionLocal()
+        requests = db.query(Request).filter(Request.user_id == user_id, Request.document_id == document_id).all()
+        return requests
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=401, 
+            detail="Expired token. Please log in again to get a new token."
+        )
+    except Exception as e:
+        logger.error(f"Error retrieving requests: {e}")
+        raise HTTPException(
+            status_code=500,  
+            detail="An error occurred while retrieving requests. Please try again later." 
+        )
+        
 if __name__ == "_main_":
     # import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8089)

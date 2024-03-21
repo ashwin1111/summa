@@ -8,6 +8,7 @@ from hashing import verify_password
 from sqlalchemy.orm import Session
 from database_operations import get_user
 from loguru import logger
+from fastapi import Depends
 
 SECRET_KEY = "divyansh"
 ALGORITHM = "HS256"
@@ -33,26 +34,31 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-def get_current_user(authorization: Optional[str] = Header(None)) -> User:
+def get_current_user(authorization: Optional[str] = Header(None)) -> Optional[User]:
     if authorization is None:
-        raise HTTPException(status_code=401, detail="Could not validate credentials")
+        return None
     try:
         scheme, token = authorization.split()
         if scheme.lower() != 'bearer':
-            raise HTTPException(status_code=401, detail="Could not validate credentials")
+            return None
     except ValueError:
-        raise HTTPException(status_code=401, detail="Could not validate credentials")
+        return None
 
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
-            raise HTTPException(status_code=401, detail="Could not validate credentials")
+            return None
     except JWTError:
-        raise HTTPException(status_code=401, detail="Could not validate credentials")
+        return None
 
     db = SessionLocal()
     user = get_user(email, db)
+    if user is None:
+        return None
+    return user
+
+def get_current_user_token(user: User = Depends(get_current_user)):
     if user is None:
         raise HTTPException(status_code=401, detail="Could not validate credentials")
     return user
