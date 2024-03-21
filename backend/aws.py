@@ -1,17 +1,15 @@
 from loguru import logger
-import boto3
 import aioboto3
+import os
 
-
-AWS_BUCKET = "chat-with-pdf-divyansh"
-REGION = "ap-south-1"
+AWS_BUCKET = os.getenv("AWS_BUCKET")
+REGION = os.getenv("AWS_REGION")
 
 session = aioboto3.Session(
-    aws_access_key_id = 'AKIATCKAQ7K54MD5P7SF',
-    aws_secret_access_key = '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',
+    aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY"),
 )
-# s3 = session.resource('s3')
-# bucket = s3.Bucket(AWS_BUCKET)
+
 
 async def s3_upload(contents: bytes, key: str):
     async with session.client('s3') as s3_client:

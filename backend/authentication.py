@@ -9,9 +9,10 @@ from sqlalchemy.orm import Session
 from database_operations import get_user
 from loguru import logger
 from fastapi import Depends
+import os
 
-SECRET_KEY = "divyansh"
-ALGORITHM = "HS256"
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
 
 def authenticate_user(email: str, password: str):
     db = SessionLocal()

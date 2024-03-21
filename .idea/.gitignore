@@ -3,4 +3,4 @@
 /workspace.xml
 
 # Exclude venv folder
-/backend/venv/
+../backend/venv/

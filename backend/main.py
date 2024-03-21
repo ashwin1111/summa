@@ -1,13 +1,9 @@
 from database import SessionLocal
 from models import User, Document, UserCreate, UserLogin, RESPONSE, Request
-from fastapi import FastAPI, HTTPException, Response, File, UploadFile, status
-from jose import JWTError, jwt
-from sqlalchemy.orm import Session
+from fastapi import FastAPI, HTTPException, File, UploadFile
 from database import SessionLocal 
-from datetime import datetime, timedelta
 from fastapi import Depends
-from hashing import hash_password, verify_password
-from database_operations import create_document_in_database, create_user_in_database, get_user
+from database_operations import create_document_in_database, create_user_in_database
 from authentication import authenticate_user, create_access_token, get_current_user_token
 from aws import s3_upload
 

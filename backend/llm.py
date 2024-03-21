@@ -9,8 +9,6 @@ from llama_index.core import VectorStoreIndex, Document
 import requests
 from io import BytesIO
 import PyPDF2
-import aiohttp
-import asyncio
 
 class LLM:
     def __init__(self, logger) -> None:
