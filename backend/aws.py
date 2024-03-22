@@ -3,7 +3,7 @@ import aioboto3
 import os
 
 AWS_BUCKET = os.getenv("AWS_BUCKET")
-REGION = os.getenv("REGION")
+REGION = os.getenv("AWS_REGION")
 
 session = aioboto3.Session(
     aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID"),
