@@ -24,7 +24,8 @@ from jwt.exceptions import ExpiredSignatureError
 
 origins = [
     "http://localhost:5173",
-    "https://chat-with-pdf-hazel.vercel.app"
+    "https://chat-with-pdf-hazel.vercel.app",
+    "https://chat-with-mwyxrq944-div360s-projects.vercel.app/"
 ]
 
 app = FastAPI()
