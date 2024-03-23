@@ -16,7 +16,7 @@ async def s3_upload(contents: bytes, key: str):
         logger.info(f'Uploading {key} to S3, Bucket: {AWS_BUCKET}')  # Debug print
         try:
             await s3_client.put_object(Key=key, Body=contents, Bucket=AWS_BUCKET)
-            object_url = f"https://s3.{REGION}.amazonaws.com/{AWS_BUCKET}/{key}"
+            object_url = f"https://s3.ap-south-1.amazonaws.com/{AWS_BUCKET}/{key}"
             return object_url
             
         except Exception as e:  # Add a general exception handler for further debugging
