@@ -1,4 +1,4 @@
-# Chat with Pdf AI Planet Assignment
+# Chat with Pdf
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB) ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
  ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)
 ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
@@ -8,7 +8,7 @@
 ### Youtube Video Link : https://www.youtube.com/watch?v=yazVbILsFco&ab_channel=DivyanshSharma
 
 ### Tagline
-Intelligent document exploration and conversation powered by AI as an assignment for internship at ***ai planet***
+Intelligent document exploration and conversation powered by AI as an assignment for internship.
 
 ## Overview 
 
