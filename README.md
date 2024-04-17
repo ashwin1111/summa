@@ -5,11 +5,10 @@
 ![LlamaIndex]( https://img.shields.io/badge/LlamaIndex-8A2BE2)
 
 
-### Youtube Video Link : https://www.youtube.com/watch?v=yazVbILsFco&ab_channel=DivyanshSharma
+
 
 ### Tagline
-Intelligent document exploration and conversation powered by AI as an assignment for internship.
-
+Intelligent document exploration and conversation powered by AI
 ## Overview 
 
 This project is a chat application that empowers users to have natural-language conversations about the content of their PDFs, unlocking valuable insights effortlessly. Also user can log in see their saved documents and select a previously uploaded document for prompting.
