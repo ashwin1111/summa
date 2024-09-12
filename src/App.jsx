@@ -25,15 +25,7 @@ function App() {
     // <Dashboard/>
       <div className="App">
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route
-            path="/dashboard"
-            element={
-              // <RequireToken>
-              <Dashboard />
-              // </RequireToken>
-            }
-          />
+          <Route path="/" element={<Dashboard />} />
         </Routes>
         <ToastContainer position="top-center" theme="light" />
       </div>
