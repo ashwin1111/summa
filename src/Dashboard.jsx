@@ -24,22 +24,38 @@ const Dashboard = () => {
   const [confirmLoading, setConfirmLoading] = useState(false);
 
   useEffect(() => {
-    setLoadingGlobal(true);
-    const userId = localStorage.getItem("user_id"); // replace this with actual user id
+    setLoadingGlobal(false);
     axios
-      .get(import.meta.env.VITE_BACKEND_URL + `/documents/${userId}`,{
+      .get(import.meta.env.VITE_BACKEND_URL + `/chat`,{
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("secret")}`,
         },
       })
       .then((response) => {
-        setDocuments(response.data.documents);
-        setCurrentDocument(response.data.documents[0]);
+        setDocuments([
+          {
+            id: 1,
+            'title': 'Chat 1',
+          },
+          {
+            id: 2,
+            'title': 'Chat 2',
+          },
+        ]);
+        // setCurrentDocument(response.data.documents[0]);
         setLoadingGlobal(false);
       })
       .catch((error) => {
-        console.error("Error fetching documents", error);
-        toast.error("Error fetching documents");
+        setDocuments([
+          {
+            id: 1,
+            'title': 'Chat 1',
+          },
+          {
+            id: 2,
+            'title': 'Chat 2',
+          },
+        ]);
       });
   }, []);
 
@@ -65,12 +81,7 @@ const Dashboard = () => {
 
         <div className="mt-5 flex flex-col justify-center items-center mb-6 overflow-hidden">
           <Search />
-          <button
-            onClick={handleLogout}
-            className="mt-4 min-w-[80%] p-2 text-white bg-red-500 hover:bg-red-600 rounded"
-          >
-            <p className="text-[0.8rem]">Logout</p>
-          </button>
+          
         </div>
         {documents.length === 0 ? (
           <>

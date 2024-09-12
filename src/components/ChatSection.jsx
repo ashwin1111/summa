@@ -38,12 +38,32 @@ const ChatSection = () => {
   const setChatLoading = useBearStore((state) => state.setChatLoading);
   const setCurrentDocument = useBearStore((state) => state.setCurrentDocument);
   const handleSend = async (message) => {
-    // setChatMessages([...chatMessages, { text: message, type: "user" }]);
+    setDocuments([
+      {
+        id: 1,
+        'title': 'Chat 1',
+      },
+      {
+        id: 2,
+        'title': 'Chat 2',
+      },
+      {
+        id: 3,
+        'title': 'Chat 3',
+      },
+    ]);
+
+    // TODO: insert to db
+
+    setChatMessages([...chatMessages, {
+      id: 1,
+      'response': 'AI said ' + message,
+      'query': message
+    },]);
     //  setChatMessages([...chatMessages, { text: message, type: "user" }]);
 
     setChatLocal({
       created_at: new Date().toISOString(),
-      document_id: currentDocument.id,
       id: uuidv4(),
       prompt: message,
       response: "",
@@ -53,10 +73,9 @@ const ChatSection = () => {
     setIsLoading(true);
 
     try {
-      const user_id = localStorage.getItem("user_id");
       const API_URL = `${
         import.meta.env.VITE_BACKEND_URL
-      }/response/${user_id}/${currentDocument.id}`;
+      }/chat/`;
       const response = await axios.post(
         API_URL,
         {
@@ -65,22 +84,21 @@ const ChatSection = () => {
         },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `${localStorage.getItem("secret")}`,
           },
         }
       );
 
       setChatLocal({
         created_at: new Date().toISOString(),
-        document_id: currentDocument.id,
         id: Math.random(),
         prompt: message,
         response: response.data.response,
       });
-      toast.info("Scroll to bottom to see the response.");
+      // toast.info("Scroll to bottom to see the response.");
       setChatLoading(false);
     } catch (error) {
-      console.error("Error sending message:", error);
+      setChatLoading(false);
     } finally {
       // setUserInput("");
       setIsLoading(false);
@@ -92,20 +110,7 @@ const ChatSection = () => {
   }, [chatLocal]);
 
   const fetchInitialMessages = async () => {
-    try {
-      const user_id = localStorage.getItem("user_id");
-      const API_URL = `${
-        import.meta.env.VITE_BACKEND_URL
-      }/requests/${user_id}/${currentDocument.id}`;
-      const response = await axios.get(API_URL, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      setChatMessages(response.data);
-    } catch (error) {
-      console.error("Error fetching initial messages:", error);
-    }
+   
   };
 
   useEffect(() => {
@@ -194,19 +199,6 @@ const ChatSection = () => {
         <div>
           <img src={logo} alt="" className="h-8" />
         </div>
-        <button
-          className="max-h-10 px-3 py-2 text-white hover:scale-105 flex items-center gap-2 rounded-2xl md:hidden"
-          style={{
-            background:
-              "linear-gradient(180deg, #0fa958 0%, #0fa958 100%, #0fa958 100%)",
-            boxShadow:
-              "0px 2px 5px #0fa958, inset 0px -2px 0.3px #0fa958, inset 0px 2px 1px #0fa958",
-          }}
-          onClick={() => setOpenDocumentsModal(true)}
-        >
-          <MdHistory size={20} />
-          <p className="font-bold text-sm">History</p>
-        </button>
         {documents.length > 10 && (
           <div>
             <p className="hidden md:block text-[red]">
@@ -215,22 +207,7 @@ const ChatSection = () => {
             </p>
           </div>
         )}
-        <Button
-          className="max-h-10 px-3 py-2 text-white hover:scale-105 flex items-center gap-2 rounded-lg"
-          {...(documents.length > 10 && { disabled: true })}
-          style={{
-            background:
-              "linear-gradient(180deg, #0fa958 0%, #0fa958 100%, #0fa958 100%)",
-            boxShadow:
-              "0px 2px 5px #0fa958, inset 0px -2px 0.3px #0fa958, inset 0px 2px 1px #0fa958",
-            fontSize: "1rem",
-            padding: "1rem 1rem",
-          }}
-          onClick={() => setOpen(true)}
-        >
-          <IoMdAddCircleOutline size={20} />
-          <p className="font-bold text-md">Upload Pdf</p>
-        </Button>
+        
       </div>
       {documents.length > 10 && (
         <div className="block mt-3 md:hidden">
@@ -243,21 +220,21 @@ const ChatSection = () => {
       <div className="text-left mt-10 w-[98%] flex flex-col justify-center items-center">
         <div className="md:min-w-[60vw] md:max-w-[60vw] min-w-[60vw] max-w-[60vw]">
           <p className="text-xl font-bold">{currentDocument?.name}</p>
-          <p className="text-sm">Start asking questions on this pdf</p>
+          <p className="text-sm">Start asking questions</p>
         </div>
       </div>
       <div className="w-[98%] h-[60vh] flex flex-col items-center overflow-x-hidden overflow-y-scroll z-20">
         <div className="max-w-[80vw] md:max-w-[60vw] min-w-[80vw] md:min-w-[60vw]">
           {chatMessages?.map((message, index) => (
             <React.Fragment key={index}>
-              <UserChatBubble key={uuidv4()} text={message.prompt} />
+              <UserChatBubble key={uuidv4()} text={message.query} />
               <AiChatBubble key={uuidv4()} text={message.response} />
             </React.Fragment>
           ))}
           {chatLocal?.length > 0 &&
             chatLocal?.map((message, index) => (
               <React.Fragment key={index}>
-                <UserChatBubble key={uuidv4()} text={message.prompt} />
+                <UserChatBubble key={uuidv4()} text={message.query} />
                 <AiChatBubble key={uuidv4()} text={message.response} />
               </React.Fragment>
             ))}
